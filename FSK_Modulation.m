@@ -2,8 +2,7 @@
 
 clc, clear all, close all;
 % ******************* Digital/Binary input information ********************
-
-% x = input('Enter Digital Input Information = ');   
+  
 % Binary information as stream of bits (binary signal 0 or 1)
 x = randi(2, [1,10], 'int32') - 1; % auto generate the binary sequence
 N = length(x);
@@ -30,7 +29,7 @@ for n = 1:1:N
 end
 
 t1 = Tb/nb : Tb/nb : nb*N*(Tb/nb);   % Time period
-figure('Name','ASK Modulation and Demodulation With Noise','NumberTitle','off');
+figure('Name','FSK Modulation','NumberTitle','off');
 subplot(4,1,1);
 plot(t1,digit,'LineWidth',2.5);
 grid on;
@@ -40,32 +39,13 @@ ylabel('Amplitude(Volts)');
 title('Digital Input Signal');
 
 % *************************** FSK Modulation *****************************
-Ac = 1;      % Carrier amplitude for binary input
+Ac = 10;      % Carrier amplitude for binary input
 br = 1/Tb;    % Bit rate
 Fc1 = br;      % Carrier phase for binary input '1'
 Fc2 = br*2;     % Carrier phase for binary input '0' 
-N0 = sqrt(10);
+
 t2 = Tb/nb:Tb/nb:Tb;   % Signal time
 mod = [];
-
-x_ = Tb/nb:Tb/nb:Tb*N; % Time period
-y1 = Ac*cos(2*pi*Fc1*x_); % carrier function 1
-y2 = Ac*cos(2*pi*Fc2*x_); % carrier function 2
-
-% plot carrier 1
-subplot(4,1,3);
-plot(x_,y1);
-xlabel('Time(Sec)');
-ylabel('Amplitude(Volts)');
-title('2-FSK Carrier 1');
-
-% plot carrier 2
-subplot(4,1,4);
-plot(x_,y2);
-ylim([-20,20]);
-xlabel('Time(Sec)');
-ylabel('Amplitude(Volts)');
-title('2-FSK Carrier 2');
 
 for (i = 1:1:N)
     if (x(i) == 1)
@@ -76,28 +56,29 @@ for (i = 1:1:N)
     mod = [mod y];
 end
 
-t3 = Tb/nb:Tb/nb:Tb*N;   % Time period
-subplot(6,1,4);
-plot(t3,mod);
+t3 = Tb/nb:Tb/nb:Tb*N; % Time period
+
+y1 = Ac*cos(2*pi*Fc1*t3); % carrier function 1
+y2 = Ac*cos(2*pi*Fc2*t3); % carrier function 2
+
+% plot carrier 1
+subplot(4,1,2);
+plot(t3,y1);
 grid on;
-ylim([-20,20]);
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');
-title('FSK Modulated Signal');
+title('2-FSK Carrier 1');
 
-% ********************* Transmitted signal x ******************************
-x = mod;
+% plot carrier 2
+subplot(4,1,3);
+plot(t3,y2);
+grid on;
+xlabel('Time(Sec)');
+ylabel('Amplitude(Volts)');
+title('2-FSK Carrier 2');
 
-% ********************* Channel model h and w *****************************
-h = 1;   % Signal fading 
-w = 0  % Noise
-
-% ********************* Received signal y *********************************
-y = h.*x + w;   % Convolution
-
-t3=Tb/nb:Tb/nb:Tb*N;   % Time period
-subplot(6,1,5);
-plot(t3,y);
+subplot(4,1,4);
+plot(t3,mod);
 grid on;
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');

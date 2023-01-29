@@ -2,10 +2,9 @@
 
 clc, clear all, close all;
 % ******************* Digital/Binary input information ********************
-
-% x = input('Enter Digital Input Information = ');   % Binary information as stream of bits (binary signal 0 or 1)
+  
+% Binary information as stream of bits (binary signal 0 or 1)
 x = randi(2, [1,10], 'int32') - 1; % auto generate the binary sequence
-x1 = x
 N = length(x);
 Tb = 0.0001;   %Data rate = 1MHz i.e., bit period (second)
 disp('Binary Input Information at Transmitter: ');
@@ -30,7 +29,7 @@ for n = 1:1:N
 end
 
 t1 = Tb/nb : Tb/nb : nb*N*(Tb/nb);   % Time period
-figure('Name','ASK Modulation and Demodulation With Noise','NumberTitle','off');
+figure('Name','FSK Modulation And Demodulation','NumberTitle','off');
 subplot(6,1,1);
 plot(t1,digit,'LineWidth',2.5);
 grid on;
@@ -40,32 +39,13 @@ ylabel('Amplitude(Volts)');
 title('Digital Input Signal');
 
 % *************************** FSK Modulation *****************************
-Ac = 1;      % Carrier amplitude for binary input
+Ac = 10;      % Carrier amplitude for binary input
 br = 1/Tb;    % Bit rate
 Fc1 = br;      % Carrier phase for binary input '1'
-Fc2 = br*10;     % Carrier phase for binary input '0' 
-N0 = sqrt(10);
+Fc2 = br*2;     % Carrier phase for binary input '0' 
+
 t2 = Tb/nb:Tb/nb:Tb;   % Signal time
 mod = [];
-
-x_ = Tb/nb:Tb/nb:Tb*N; % Time period
-y1 = Ac*cos(2*pi*Fc1*x_); % carrier function 1
-y2 = Ac*cos(2*pi*Fc2*x_); % carrier function 2
-
-% plot carrier 1
-subplot(6,1,2);
-plot(x_,y1);
-xlabel('Time(Sec)');
-ylabel('Amplitude(Volts)');
-title('2-FSK Carrier 1');
-
-% plot carrier 2
-subplot(6,1,3);
-plot(x_,y2);
-ylim([-20,20]);
-xlabel('Time(Sec)');
-ylabel('Amplitude(Volts)');
-title('2-FSK Carrier 2');
 
 for (i = 1:1:N)
     if (x(i) == 1)
@@ -76,26 +56,43 @@ for (i = 1:1:N)
     mod = [mod y];
 end
 
-t3 = Tb/nb:Tb/nb:Tb*N;   % Time period
+t3 = Tb/nb:Tb/nb:Tb*N; % Time period
+
+y1 = Ac*cos(2*pi*Fc1*t3); % carrier function 1
+y2 = Ac*cos(2*pi*Fc2*t3); % carrier function 2
+
+% plot carrier 1
+subplot(6,1,2);
+plot(t3,y1);
+grid on;
+xlabel('Time(Sec)');
+ylabel('Amplitude(Volts)');
+title('2-FSK Carrier 1');
+
+% plot carrier 2
+subplot(6,1,3);
+plot(t3,y2);
+grid on;
+xlabel('Time(Sec)');
+ylabel('Amplitude(Volts)');
+title('2-FSK Carrier 2');
+
 subplot(6,1,4);
 plot(t3,mod);
 grid on;
-ylim([-20,20]);
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');
 title('FSK Modulated Signal');
 
-% ********************* Transmitted signal x ******************************
+%********************* Transmitted signal x ******************************
 x = mod;
-
-% ********************* Channel model h and w *****************************
+%********************* Channel model h and w *****************************
 h = 1;   % Signal fading 
+N0 = sqrt(10);
 w = sqrt(N0/2) * rand(1, N*nb);   % Noise
-
-% ********************* Received signal y *********************************
+%********************* Received signal y *********************************
 y = h.*x + w;   % Convolution
 
-t3=Tb/nb:Tb/nb:Tb*N;   % Time period
 subplot(6,1,5);
 plot(t3,y);
 grid on;
@@ -104,29 +101,30 @@ ylabel('Amplitude(Volts)');
 title('FSK Demodulated Signal');
 
 % *************************** FSK Demodulation ****************************
-s = length(t2); % số cặp giá trị (t,y) để biểu diễn 1 tín hiệu
+ 
+s = length(t2);
 demod = [];
-Fc = br*10;
-for n = s:s:length(y) 
-    t4 = Tb/nb:Tb/nb:Tb;    % Time period
-    c = cos(2*pi*Fc*t4);    % Carrier signal % basis of M
-    mm = c.*y((n-(s-1)):n); % Convolution 
-    t5 = Tb/nb:Tb/nb:Tb;
-    z = trapz(t5,mm);       % Intregation 
-    rz = round(2*z/Tb); % khong hieu sao phải *2/Tb
-    if (rz > Ac/2)
-        a = 0;
-    else   
-        a = 1;
-    end
-    demod = [demod a];
+for n = s:s:length(y);
+  t4 = Tb/nb:Tb/nb:Tb;        % Time period
+  c1 = cos(2*pi*Fc1*t4);      % carrier signal for binary value '1'
+  c2 = cos(2*pi*Fc2*t4);      % carrier siignal for binary value '0'
+  mc1 = c1.*y((n-(s-1)):n);   % Convolution 
+  mc2 = c2.*y((n-(s-1)):n);   % Convolution 
+  t5 = Tb/nb:Tb/nb:Tb;
+  z1 = trapz(t5,mc1);         % Intregation 
+  z2 = trapz(t5,mc2);         % Intregation 
+  rz1 = round(2*z1/Tb);
+  rz2 = round(2*z2/Tb);
+  if(rz1 > Ac/2);              % Logical condition 
+    a = 1;
+  else(rz2 > Ac/2);
+    a = 0;
+  end
+  demod = [demod a];
 end
 disp('Demodulated Binary Information at Receiver: ');
 disp(demod);
-
 % ********** Represent demodulated information as digital signal **********
-
-
 digit = [];
 for n = 1:length(demod);
     if demod(n) == 1;
@@ -136,17 +134,14 @@ for n = 1:length(demod);
     end
      digit = [digit sig];
 end
-
 t5 = Tb/nb:Tb/nb:nb*length(demod)*(Tb/nb);   % Time period
-subplot(6,1,6)
+subplot(6,1,6);
 plot(t5,digit,'LineWidth',2.5);grid on;
 axis([0 Tb*length(demod) -0.5 1.5]);
-grid on;
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');
 title('FSK Demodulated Binary Data');
-num = xor(demod,x1);
-disp(sum(num));
+
 % ************************** End of the program ***************************
 
 

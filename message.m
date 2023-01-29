@@ -1,7 +1,9 @@
 % <<<<<<<<<<<<<<<<<<<< FSK Modulation and Demodulation >>>>>>>>>>>>>>>>>>>>
 clc, clear all, close all;
 % ******************* Digital/Binary input information ********************
-x = input('Enter Digital Input Information = ');   % Binary information as stream of bits (binary signal 0 or 1)
+
+% Binary information as stream of bits (binary signal 0 or 1)
+x = randi(2, [1,10], 'int32') - 1;
 N = length(x);
 Tb = 0.0001;   %Data rate = 1MHz i.e., bit period (second)
 disp('Binary Input Information at Transmitter: ');
