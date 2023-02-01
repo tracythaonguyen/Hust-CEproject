@@ -5,6 +5,7 @@ clc, clear all, close all;
   
 % Binary information as stream of bits (binary signal 0 or 1)
 x = randi(2, [1,10], 'int32') - 1; % auto generate the binary sequence
+x1 = x;
 N = length(x);
 Tb = 0.0001;   %Data rate = 1MHz i.e., bit period (second)
 disp('Binary Input Information at Transmitter: ');
@@ -141,6 +142,12 @@ axis([0 Tb*length(demod) -0.5 1.5]);
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');
 title('FSK Demodulated Binary Data');
+
+% Calculate BER
+num = xor(demod, x1);
+%fprintf('Compare input signal and received signal:\n');
+%disp(num);
+fprintf('BER = %i\n', sum(num));
 
 % ************************** End of the program ***************************
 
