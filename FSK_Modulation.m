@@ -4,7 +4,7 @@ clc, clear all, close all;
 % ******************* Digital/Binary input information ********************
   
 % Binary information as stream of bits (binary signal 0 or 1)
-x = randi(2, [1,10], 'int32') - 1; % auto generate the binary sequence
+x = randi(2, [1,30], 'int32') - 1; % auto generate the binary sequence
 N = length(x);
 Tb = 0.0001;   %Data rate = 1MHz i.e., bit period (second)
 disp('Binary Input Information at Transmitter: ');
@@ -41,8 +41,8 @@ title('Digital Input Signal');
 % *************************** FSK Modulation *****************************
 Ac = 10;      % Carrier amplitude for binary input
 br = 1/Tb;    % Bit rate
-Fc1 = br;      % Carrier phase for binary input '1'
-Fc2 = br*2;     % Carrier phase for binary input '0' 
+Fc1 = br*4;      % Carrier phase for binary input '1'
+Fc2 = br*6;     % Carrier phase for binary input '0' 
 
 t2 = Tb/nb:Tb/nb:Tb;   % Signal time
 mod = [];
@@ -65,6 +65,7 @@ y2 = Ac*cos(2*pi*Fc2*t3); % carrier function 2
 subplot(4,1,2);
 plot(t3,y1);
 grid on;
+ylim([-20,20]);
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');
 title('2-FSK Carrier 1');
@@ -73,6 +74,7 @@ title('2-FSK Carrier 1');
 subplot(4,1,3);
 plot(t3,y2);
 grid on;
+ylim([-20,20]);
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');
 title('2-FSK Carrier 2');
@@ -80,10 +82,9 @@ title('2-FSK Carrier 2');
 subplot(4,1,4);
 plot(t3,mod);
 grid on;
+ylim([-20,20]);
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');
 title('FSK Modulated Signal');
 
 % ************************** End of the program ***************************
-
-

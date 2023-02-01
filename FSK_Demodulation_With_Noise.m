@@ -4,7 +4,7 @@ clc, clear all, close all;
 % ******************* Digital/Binary input information ********************
   
 % Binary information as stream of bits (binary signal 0 or 1)
-x = randi(2, [1,10], 'int32') - 1; % auto generate the binary sequence
+x = randi(2, [1,30], 'int32') - 1; % auto generate the binary sequence
 x1 = x;
 N = length(x);
 Tb = 0.0001;   %Data rate = 1MHz i.e., bit period (second)
@@ -30,7 +30,7 @@ for n = 1:1:N
 end
 
 t1 = Tb/nb : Tb/nb : nb*N*(Tb/nb);   % Time period
-figure('Name','FSK Modulation And Demodulation','NumberTitle','off');
+figure('Name','FSK Modulation And Demodulation With Noise','NumberTitle','off');
 subplot(6,1,1);
 plot(t1,digit,'LineWidth',2.5);
 grid on;
@@ -42,8 +42,8 @@ title('Digital Input Signal');
 % *************************** FSK Modulation *****************************
 Ac = 10;      % Carrier amplitude for binary input
 br = 1/Tb;    % Bit rate
-Fc1 = br;      % Carrier phase for binary input '1'
-Fc2 = br*2;     % Carrier phase for binary input '0' 
+Fc1 = br*4;      % Carrier phase for binary input '1'
+Fc2 = br*4.3;     % Carrier phase for binary input '0' 
 
 t2 = Tb/nb:Tb/nb:Tb;   % Signal time
 mod = [];
@@ -66,6 +66,7 @@ y2 = Ac*cos(2*pi*Fc2*t3); % carrier function 2
 subplot(6,1,2);
 plot(t3,y1);
 grid on;
+ylim([-20,20]);
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');
 title('2-FSK Carrier 1');
@@ -74,6 +75,7 @@ title('2-FSK Carrier 1');
 subplot(6,1,3);
 plot(t3,y2);
 grid on;
+ylim([-20,20]);
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');
 title('2-FSK Carrier 2');
@@ -81,6 +83,7 @@ title('2-FSK Carrier 2');
 subplot(6,1,4);
 plot(t3,mod);
 grid on;
+ylim([-20,20]);
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');
 title('FSK Modulated Signal');
@@ -92,11 +95,16 @@ h = 1;   % Signal fading
 N0 = sqrt(10);
 w = sqrt(N0/2) * rand(1, N*nb);   % Noise
 %********************* Received signal y *********************************
-y = h.*x + w;   % Convolution
+%y = h.*x + w;   % Convolution
+y1 = h.*x;
+%SNR = 1;  % Signal-to-noise ratio
+SNR = sqrt(1);
+y = awgn(y1, SNR, 'measured');
 
 subplot(6,1,5);
 plot(t3,y);
 grid on;
+ylim([-20,20]);
 xlabel('Time(Sec)');
 ylabel('Amplitude(Volts)');
 title('FSK Demodulated Signal');
@@ -150,5 +158,3 @@ num = xor(demod, x1);
 fprintf('BER = %i\n', sum(num));
 
 % ************************** End of the program ***************************
-
-
